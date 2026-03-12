@@ -1,0 +1,93 @@
+{
+    "graph_id": "task_graph_ntask_9_max_dep_8_seed_38872",
+    "random_seed": 38872,
+    "max_dependencies": 8,
+    "tasks": [
+        {
+            "id": "task1",
+            "duration": 29,
+            "memory": 256,
+            "dependencies": []
+        },
+        {
+            "id": "task2",
+            "duration": 24,
+            "memory": 2048,
+            "dependencies": [
+                "task1"
+            ]
+        },
+        {
+            "id": "task3",
+            "duration": 28,
+            "memory": 256,
+            "dependencies": [
+                "task1"
+            ]
+        },
+        {
+            "id": "task4",
+            "duration": 11,
+            "memory": 512,
+            "dependencies": [
+                "task2",
+                "task3",
+                "task1"
+            ]
+        },
+        {
+            "id": "task5",
+            "duration": 8,
+            "memory": 1024,
+            "dependencies": [
+                "task1"
+            ]
+        },
+        {
+            "id": "task6",
+            "duration": 12,
+            "memory": 1024,
+            "dependencies": [
+                "task2",
+                "task3",
+                "task1",
+                "task5",
+                "task4"
+            ]
+        },
+        {
+            "id": "task7",
+            "duration": 30,
+            "memory": 512,
+            "dependencies": [
+                "task3"
+            ]
+        },
+        {
+            "id": "task8",
+            "duration": 30,
+            "memory": 512,
+            "dependencies": [
+                "task4",
+                "task7",
+                "task3",
+                "task5",
+                "task1",
+                "task2",
+                "task6"
+            ]
+        },
+        {
+            "id": "task9",
+            "duration": 11,
+            "memory": 1024,
+            "dependencies": [
+                "task2",
+                "task8",
+                "task6",
+                "task5",
+                "task4"
+            ]
+        }
+    ]
+}
