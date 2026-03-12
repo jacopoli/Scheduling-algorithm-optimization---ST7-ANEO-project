@@ -53,6 +53,15 @@ def generate_task_graph(num_tasks, max_dependencies=None, random_seed=None):
         for dep in selected_parents:
             G.add_edge(dep, task)
     
+    # add to avoid that if:
+    #   task1 → task3 → task4
+    # to also get redundant dependence
+    #   task1 → task4
+    G = nx.transitive_reduction(G)
+
+    for task in task_data.values():
+        task['dependencies'] = list(G.predecessors(task['id']))
+    
     return G, task_data, random_seed, max_dependencies
 
 def save_graph_to_json(task_data, num_tasks, max_dependencies, random_seed):
@@ -96,12 +105,6 @@ def main():
     )
 
     assert nx.is_directed_acyclic_graph(G), "Le graphe généré contient un cycle !"
-
-    # add to avoid that if:
-    #   task1 → task3 → task4
-    # to also get redundant dependence
-    #   task1 → task4
-    G = nx.transitive_reduction(G)
 
     # Sauvegarde en JSON
     save_graph_to_json(task_data, args.num_tasks, max_dependencies, random_seed)

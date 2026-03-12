@@ -1,18 +1,30 @@
 import math
 
 class Task:
-    def __init__(self, id, execution_times, energy_costs):
+    def __init__(self, id, execution_times, energy_costs, predecessors: list[str] = None):
         self.id = id
-        self.execution_times = execution_times  # {proc_id: temps_a_fmax}
-        self.energy_costs = energy_costs        # {proc_id: energie_a_fmax}
-        self.successors = []    # Liste d'objets Task
-        self.predecessors = []  # Liste d'ids des Tasks
-        self.comm_costs = {}    # {succ_id: cout_communication}
+        self.execution_times = execution_times              # {proc_id: temps_a_fmax}
+        self.energy_costs = energy_costs                    # {proc_id: energie_a_fmax}
+        self.successors = []                                # Liste d'objets Task
+        self.predecessors = []                              # Liste d'ids des Tasks
+        self.comm_costs = {}                                # {succ_id: cout_communication}
         self.urv = 0
         self.out_degree = 0
 
-    def assign_predecessors(self, predecessors: list[str]):
-        self.predecessors = predecessors
+    def add_to_predecessors(self, predecessor: "Task"):
+        self.predecessors.append(predecessor)
+
+    def add_to_successors(self, successor: "Task"):
+        self.successors.append(successor)
+
+    def __str__(self):
+        pred_ids = [p.id for p in self.predecessors]
+        succ_ids = [s.id for s in self.successors]
+        return (f"Task(id={self.id}, "
+                f"predecessors={pred_ids}, "
+                f"successors={succ_ids}, "
+                f"execution_times={self.execution_times}, "
+                f"energy_costs={self.energy_costs})")
 
 def calculate_urv(tasks):
     """ Calcule l'Up-Rank Value de façon récursive (Formule 29) """
