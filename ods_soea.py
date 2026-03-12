@@ -6,10 +6,13 @@ class Task:
         self.execution_times = execution_times  # {proc_id: temps_a_fmax}
         self.energy_costs = energy_costs        # {proc_id: energie_a_fmax}
         self.successors = []    # Liste d'objets Task
-        self.predecessors = []  # Liste d'objets Task
+        self.predecessors = []  # Liste d'ids des Tasks
         self.comm_costs = {}    # {succ_id: cout_communication}
         self.urv = 0
         self.out_degree = 0
+
+    def assign_predecessors(self, predecessors: list[str]):
+        self.predecessors = predecessors
 
 def calculate_urv(tasks):
     """ Calcule l'Up-Rank Value de façon récursive (Formule 29) """

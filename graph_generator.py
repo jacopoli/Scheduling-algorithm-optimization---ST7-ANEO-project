@@ -1,8 +1,14 @@
+"""Code provided by the course to generate graphs"""
+
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
 import json
 import argparse
+
+def task_number(task_id):
+    """Returns task number from a string to get its number"""
+    return int(task_id.replace("task", ""))
 
 def generate_task_graph(num_tasks, max_dependencies=None, random_seed=None):
     """ Génère un graphe de tâches avec des dépendances aléatoires """
@@ -30,7 +36,7 @@ def generate_task_graph(num_tasks, max_dependencies=None, random_seed=None):
         # Déterminer les dépendances
         if task != "task1":  # La première tâche n'a pas de dépendances
             num_deps = random.randint(1, min(max_dependencies, len(tasks) - 1))  
-            possible_parents = [t for t in tasks if t < task]  # Seulement les tâches précédentes
+            possible_parents = [t for t in tasks if task_number(t) < task_number(task)]  # Seulement les tâches précédentes
             selected_parents = random.sample(possible_parents, min(len(possible_parents), num_deps))  # Choix aléatoire
         else:
             selected_parents = []
@@ -91,20 +97,26 @@ def main():
 
     assert nx.is_directed_acyclic_graph(G), "Le graphe généré contient un cycle !"
 
+    # add to avoid that if:
+    #   task1 → task3 → task4
+    # to also get redundant dependence
+    #   task1 → task4
+    G = nx.transitive_reduction(G)
+
     # Sauvegarde en JSON
     save_graph_to_json(task_data, args.num_tasks, max_dependencies, random_seed)
 
 
 
     # Dessiner le graphe
-    # plt.figure(figsize=(8, 6))
-    # pos = nx.shell_layout(G)  # Disposition en couches
-    # nx.draw(G, pos, with_labels=True, node_color="lightblue", edge_color="black",
-    #         node_size=2000, font_size=12, font_weight="bold", arrows=True)
+    plt.figure(figsize=(8, 6))
+    pos = nx.shell_layout(G)  # Disposition en couches
+    nx.draw(G, pos, with_labels=True, node_color="lightblue", edge_color="black",
+            node_size=2000, font_size=12, font_weight="bold", arrows=True)
 
     # Affichage du graphe
-    # plt.title(f"Graphe des dépendances des tâches (seed={random_seed}, max_dep={max_dependencies})")
-    # plt.show()
+    plt.title(f"Graphe des dépendances des tâches (seed={random_seed}, max_dep={max_dependencies})")
+    plt.show()
 
 if __name__ == "__main__":
     main()
