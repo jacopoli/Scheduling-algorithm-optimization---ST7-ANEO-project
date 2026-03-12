@@ -17,8 +17,8 @@ def load_tasks_from_json(file_path, processors, comm_cost=1):
         energy_costs = {p: t["duration"] * 2 for p in processors}
         task = Task(t["id"], exec_times, energy_costs)
         for tid in t["dependencies"]:
-            task.add_to_predecessors(tasks[tid])
-            tasks[tid].add_to_successors(task)
+            task.add_predecessor(tasks[tid])
+            tasks[tid].add_successor(task)
 
         tasks[t["id"]] = task
 
