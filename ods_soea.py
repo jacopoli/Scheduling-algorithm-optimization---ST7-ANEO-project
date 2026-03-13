@@ -29,8 +29,12 @@ class Task:
 
 
 def calculate_urv(tasks):
-    """ Calcule l'Up-Rank Value de façon récursive (Formule 29) """
-    for task in reversed(tasks): # On part souvent des feuilles vers la racine
+    """
+    Computes the Up-Rank Value for each task (Equation 29).
+    Assumption: tasks is ordered such that task[i] only depends on task[j] with j < i,
+    so reversed(tasks) guarantees that successors are processed before their predecessors.
+    """
+    for task in reversed(tasks):
         avg_exec = sum(task.execution_times.values()) / len(task.execution_times)
         max_succ_val = 0
         for succ in task.successors:
@@ -41,7 +45,18 @@ def calculate_urv(tasks):
 
 
 def get_ods_scheduling(tasks, processors, theta=0, l_idx=0):
-    # 1. Calculer les propriétés structurelles
+    """
+    Implementation of the ODS algorithm (Algorithm 2 from the paper).
+
+    - tasks     : list of Task objects, ordered such that task[i] only depends on task[j] with j < i
+    - processors: list of processor ids
+    - theta     : reliability weighting factor (θ >= 0). If theta=0, ODS is equivalent to HEFT.
+    - l_idx     : partitioning threshold (0 <= l <= n-1).
+                  Tasks in ODQ[0..l_idx] are assigned with time priority (Equation 30),
+                  the rest are assigned with energy priority (Equation 31).
+    """
+
+    # 1. Compute structural properties
     for t in tasks:
         t.out_degree = len(t.successors)
 
@@ -79,18 +94,9 @@ def get_ods_scheduling(tasks, processors, theta=0, l_idx=0):
         best_proc = None
         earliest_finish_time = float('inf')
         min_energy = float('inf')
-        
-        # Calcul du Earliest Start Time (EST) basé sur les prédécesseurs
-        # Formule (318): max{ft_j + w_ji} [cite: 318]
-        def get_est(t, p):
-            ready_time = 0
-            for pred in t.predecessors:
-                comm_delay = pred.comm_costs.get(t.id, 0) if allocation[pred.id] != p else 0
-                ready_time = max(ready_time, task_finish_times[pred.id] + comm_delay)
-            return max(ready_time, proc_available_time[p])
 
         if task.id in high_degree_ids:
-            # Priorité Performance (Finish Time) [cite: 302, 309]
+            # Equation (30): min{ ft_τi,k + θ * (1 - R_τi,k) * T_τi,k }
             for p in processors:
                 ft = get_est(task, p) + task.execution_times[p]
                 reliability = getattr(task, 'reliability', {}).get(p, 1.0)
@@ -99,7 +105,7 @@ def get_ods_scheduling(tasks, processors, theta=0, l_idx=0):
                     earliest_finish_time = score
                     best_proc = p
         else:
-            # Priorité Énergie [cite: 303, 313]
+            # Equation (31): min{ E_τi,k }
             for p in processors:
                 if task.energy_costs[p] < min_energy:
                     min_energy = task.energy_costs[p]
