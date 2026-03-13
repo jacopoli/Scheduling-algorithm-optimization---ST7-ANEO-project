@@ -9,11 +9,14 @@ class Task:
         self.predecessors = []  # Liste d'objets Task
         self.comm_costs = {}    # {succ_id: cout_communication}
         self.urv = 0
+        self.uprank = 0         # Utilisé par HEFT
         self.out_degree = 0
 
 def calculate_urv(tasks):
-    """ Calcule l'Up-Rank Value de façon récursive (Formule 29) """
-    for task in reversed(tasks): # On part souvent des feuilles vers la racine
+    """ Calcule l'Up-Rank Value de façon récursive
+    input : liste d'objets Task avec leurs successeurs et coûts de communication
+    output : met à jour l'attribut urv de chaque tâche """
+    for task in reversed(tasks):
         avg_exec = sum(task.execution_times.values()) / len(task.execution_times)
         max_succ_val = 0
         for succ in task.successors:
@@ -23,6 +26,12 @@ def calculate_urv(tasks):
         task.urv = avg_exec + max_succ_val
 
 def get_ods_scheduling(tasks, processors, theta=0, l_idx=0):
+    """input: - tasks: liste d'objets Task
+               - processors: liste d'identifiants de processeurs
+               - theta: paramètre de fiabilité (non utilisé dans cette version)
+               - l_idx: indice de séparation pour les files de priorité
+       output: - allocation: {task_id: proc_id}"""
+    
     # 1. Calculer les propriétés structurelles
     for t in tasks:
         t.out_degree = len(t.successors) 
@@ -47,7 +56,7 @@ def get_ods_scheduling(tasks, processors, theta=0, l_idx=0):
         min_energy = float('inf')
         
         # Calcul du Earliest Start Time (EST) basé sur les prédécesseurs
-        # Formule (318): max{ft_j + w_ji} [cite: 318]
+        #max{ft_j + w_ji}
         def get_est(t, p):
             ready_time = 0
             for pred in t.predecessors:
@@ -56,7 +65,7 @@ def get_ods_scheduling(tasks, processors, theta=0, l_idx=0):
             return max(ready_time, proc_available_time[p])
 
         if task.id in high_degree_ids:
-            # Priorité Performance (Finish Time) [cite: 302, 309]
+            # Priorité Performance (Finish Time)
             for p in processors:
                 ft = get_est(task, p) + task.execution_times[p]
                 # On simplifie ici sans le paramètre de fiabilité theta
@@ -64,7 +73,7 @@ def get_ods_scheduling(tasks, processors, theta=0, l_idx=0):
                     earliest_finish_time = ft
                     best_proc = p
         else:
-            # Priorité Énergie [cite: 303, 313]
+            # Priorité Énergie
             for p in processors:
                 if task.energy_costs[p] < min_energy:
                     min_energy = task.energy_costs[p]
