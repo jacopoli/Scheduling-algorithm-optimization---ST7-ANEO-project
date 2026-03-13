@@ -3,6 +3,7 @@ import json
 from json_parser import load_tasks_from_json, save_results_to_json
 from ods_soea import get_ods_scheduling
 from test_ods_soea import draw_scheduling_gantt
+from visualizer import draw_task_dag
 
 def main():
     if len(sys.argv) < 2:
@@ -20,6 +21,7 @@ def main():
     save_results_to_json(allocation, finish_times)
 
     # Save Gantt chart
+    draw_task_dag(tasks, output_path="graph.png")
     draw_scheduling_gantt(allocation, finish_times, tasks, processors, output_path="gantt.png")
 
 if __name__ == "__main__":
