@@ -23,3 +23,12 @@ def load_tasks_from_json(file_path, processors, comm_cost=1):
         tasks[t["id"]] = task
 
     return list(tasks.values())
+
+def save_results_to_json(allocation, finish_times):
+    results = {
+        "allocation": allocation,
+        "finish_times": finish_times
+    }
+
+    with open("results.json", "w") as f:
+        json.dump(results, f, indent=4)

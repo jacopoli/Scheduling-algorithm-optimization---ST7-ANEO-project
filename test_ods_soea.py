@@ -72,7 +72,13 @@ def draw_task_dag(tasks, title="Task DAG"):
     plt.show()
 
 
-def draw_scheduling_gantt(allocation, finish_times, tasks, processors, title="Scheduling Gantt Chart"):
+def draw_scheduling_gantt(allocation,
+                          finish_times,
+                          tasks,
+                          processors,
+                          title="Scheduling Gantt Chart",
+                          output_path=None
+                          ):
     """
     Trace un diagramme de Gantt montrant le scheduling sur les différents processeurs.
     
@@ -128,7 +134,13 @@ def draw_scheduling_gantt(allocation, finish_times, tasks, processors, title="Sc
     ax.set_ylim(-0.5, len(processors) - 0.5)
     
     plt.tight_layout()
-    plt.show()
+
+    if output_path:
+        plt.savefig(output_path)
+    else:
+        plt.show()
+    
+    plt.close()
 
 
 class TestTask(unittest.TestCase):
