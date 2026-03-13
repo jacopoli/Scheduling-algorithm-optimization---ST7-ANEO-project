@@ -47,6 +47,13 @@ aws lambda create-function \
     --region us-east-1
 ```
 
+### (Optional) Delete the Lambda function
+If the function already exists, as we only have permissions to create one and under that specific name, you must delete it.
+```bash
+aws lambda delete-function --function-name ordonnanceur_group4 --region us-east-1
+```
+
+
 Check that the function is ready (State should be `Active`):
 ```bash
 aws lambda get-function --function-name ods_soea --region us-east-1
