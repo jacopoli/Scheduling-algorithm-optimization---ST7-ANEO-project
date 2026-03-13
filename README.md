@@ -35,7 +35,7 @@ Note: make sure to specify the full filename at the end of the S3 path.
 
 ```bash
 # Zip the required files
-zip my_lambda.zip lambda_function.py ods_soea.py json_parser.py
+zip my_lambda.zip lambda_function.py ordonnanceur_group4.py json_parser.py
 
 # Deploy to Lambda
 aws lambda create-function \
@@ -56,14 +56,14 @@ aws lambda delete-function --function-name ordonnanceur_group4 --region us-east-
 
 Check that the function is ready (State should be `Active`):
 ```bash
-aws lambda get-function --function-name ods_soea --region us-east-1
+aws lambda get-function --function-name ordonnanceur_group4 --region us-east-1
 ```
 
 ## Running the Algorithm
 ### Invoke the Lambda function
 ```bash
 aws lambda invoke \
-    --function-name ods_soea \
+    --function-name ordonnanceur_group4 \
     --payload '{"input_bucket": "central-supelec-data-group4", "input_key": "input_data/task_graph.json", "num_processors": <desired_proc>}' \
     --cli-binary-format raw-in-base64-out \
     response.json \
