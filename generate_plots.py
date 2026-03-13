@@ -25,8 +25,8 @@ def main():
     tasks = load_tasks_from_json(task_graph_file, processors)
 
     # Generate plots
-    draw_task_dag(tasks, output_path="graph.png")
-    draw_scheduling_gantt(allocation, finish_times, tasks, processors, output_path="gantt.png")
+    draw_task_dag(tasks, output_path="graph.png", task_prefix="")
+    draw_scheduling_gantt(allocation, finish_times, tasks, processors, output_path="gantt.png", task_prefix="")
     print("Plots saved to graph.png and gantt.png")
 
 if __name__ == "__main__":

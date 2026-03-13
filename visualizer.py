@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 import networkx as nx
 import matplotlib.patches as mpatches
 
-def draw_task_dag(tasks, title="Task DAG", output_path=None):
+def draw_task_dag(tasks, title="Task DAG", output_path=None, task_prefix="Task "):
     """
     Dessine le graphe acyclique dirigé (DAG) des tâches avec leurs dépendances.
     Les flèches vont du parent (prédécesseur) au fils (successeur).
@@ -16,7 +16,7 @@ def draw_task_dag(tasks, title="Task DAG", output_path=None):
     
     # Ajouter les nœuds
     for task in tasks:
-        G.add_node(task.id, label=f"Task {task.id}\n(URV: {task.urv:.1f})")
+        G.add_node(task.id, label=f"{task_prefix}{task.id}\n(URV: {task.urv:.1f})")
     
     # Ajouter les arêtes (du prédécesseur au successeur)
     for task in tasks:
@@ -43,7 +43,7 @@ def draw_task_dag(tasks, title="Task DAG", output_path=None):
                           alpha=0.9, ax=ax, edgecolors='darkblue', linewidths=2)
     
     # Dessiner les labels des nœuds
-    nx.draw_networkx_labels(G, pos, {task.id: f"T{task.id}" for task in tasks}, 
+    nx.draw_networkx_labels(G, pos, {task.id: f"{task_prefix}{task.id}" for task in tasks}, 
                            font_size=12, font_weight='bold', ax=ax)
     
     # Dessiner les arêtes (flèches) avec plus de visibilité
@@ -79,7 +79,8 @@ def draw_scheduling_gantt(allocation,
                           tasks,
                           processors,
                           title="Scheduling Gantt Chart",
-                          output_path=None
+                          output_path=None,
+                          task_prefix="Task "
                           ):
     """
     Trace un diagramme de Gantt montrant le scheduling sur les différents processeurs.
@@ -113,7 +114,7 @@ def draw_scheduling_gantt(allocation,
                 color=color_map[task_id], edgecolor='black', linewidth=1.5)
         
         # Ajouter le label de la tâche
-        ax.text(st + exec_time/2, proc_id, f'T{task_id}', 
+        ax.text(st + exec_time/2, proc_id, f'{task_prefix}{task_id}', 
                ha='center', va='center', fontweight='bold', fontsize=10)
     
     # Configuration des axes
@@ -127,7 +128,7 @@ def draw_scheduling_gantt(allocation,
     ax.grid(True, axis='x', alpha=0.3)
     
     # Ajouter une légende
-    legend_patches = [mpatches.Patch(color=color_map[task_id], label=f'Task {task_id}') 
+    legend_patches = [mpatches.Patch(color=color_map[task_id], label=f'{task_prefix}{task_id}') 
                      for task_id in sorted(allocation.keys())]
     ax.legend(handles=legend_patches, loc='upper right', ncol=2)
     
