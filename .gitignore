@@ -211,6 +211,6 @@ __marimo__/
 *.zip
 task_graph*
 gantt.png
-results.json
+results*.json
 graph.png
 response.json

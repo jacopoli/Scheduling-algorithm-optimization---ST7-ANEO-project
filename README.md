@@ -5,7 +5,8 @@
 - An AWS account with Lambda and S3 permissions
 
 ## Setup
-
+> **⚠️ Important**
+> If you are logged in and have already created the bucket, go to section 3.
 ### 1. Configure AWS credentials
 ```bash
 aws configure
@@ -29,6 +30,9 @@ aws s3 cp task_graph.json s3://central-supelec-data-group4/input_data/task_graph
 Note: make sure to specify the full filename at the end of the S3 path.
 
 ### 4. Package and deploy the Lambda function
+> **⚠️ Important**
+> If you haven't changed anything in the code, you can skip this section as it is already done
+
 ```bash
 # Zip the required files
 zip my_lambda.zip lambda_function.py ods_soea.py json_parser.py
@@ -49,7 +53,6 @@ aws lambda get-function --function-name ods_soea --region us-east-1
 ```
 
 ## Running the Algorithm
-
 ### Invoke the Lambda function
 ```bash
 aws lambda invoke \
