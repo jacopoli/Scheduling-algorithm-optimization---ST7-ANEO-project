@@ -1,5 +1,3 @@
-import math
-
 class Task:
     def __init__(self, id, execution_times, energy_costs):
         self.id = id

@@ -208,4 +208,9 @@ __marimo__/
 
 
 # graphs
-task_graph_*
+*.zip
+task_graph*
+gantt.png
+results*.json
+graph.png
+response.json
