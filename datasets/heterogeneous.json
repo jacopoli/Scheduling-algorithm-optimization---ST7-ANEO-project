@@ -1,0 +1,259 @@
+{
+  "name": "Heterogeneous",
+  "description": "DAG multi-niveaux avec 10 t\u00e2ches de dur\u00e9es variables (puissances de 2)",
+  "num_tasks": 10,
+  "num_processors": 3,
+  "processors": [
+    0,
+    1,
+    2
+  ],
+  "tasks": [
+    {
+      "id": 0,
+      "execution_times": {
+        "0": 1,
+        "1": 1,
+        "2": 1
+      },
+      "energy_costs": {
+        "0": 1,
+        "1": 1,
+        "2": 1
+      },
+      "successors": [
+        1,
+        2
+      ],
+      "predecessors": [],
+      "comm_costs": {
+        "1": 0,
+        "2": 0
+      },
+      "urv": 933.0,
+      "out_degree": 2
+    },
+    {
+      "id": 1,
+      "execution_times": {
+        "0": 2,
+        "1": 2,
+        "2": 2
+      },
+      "energy_costs": {
+        "0": 2,
+        "1": 2,
+        "2": 2
+      },
+      "successors": [
+        3,
+        4
+      ],
+      "predecessors": [
+        0
+      ],
+      "comm_costs": {
+        "3": 0,
+        "4": 0
+      },
+      "urv": 914.0,
+      "out_degree": 2
+    },
+    {
+      "id": 2,
+      "execution_times": {
+        "0": 4,
+        "1": 4,
+        "2": 4
+      },
+      "energy_costs": {
+        "0": 4,
+        "1": 4,
+        "2": 4
+      },
+      "successors": [
+        4,
+        5
+      ],
+      "predecessors": [
+        0
+      ],
+      "comm_costs": {
+        "4": 0,
+        "5": 0
+      },
+      "urv": 932.0,
+      "out_degree": 2
+    },
+    {
+      "id": 3,
+      "execution_times": {
+        "0": 8,
+        "1": 8,
+        "2": 8
+      },
+      "energy_costs": {
+        "0": 8,
+        "1": 8,
+        "2": 8
+      },
+      "successors": [
+        6
+      ],
+      "predecessors": [
+        1
+      ],
+      "comm_costs": {
+        "6": 0
+      },
+      "urv": 840.0,
+      "out_degree": 1
+    },
+    {
+      "id": 4,
+      "execution_times": {
+        "0": 16,
+        "1": 16,
+        "2": 16
+      },
+      "energy_costs": {
+        "0": 16,
+        "1": 16,
+        "2": 16
+      },
+      "successors": [
+        7
+      ],
+      "predecessors": [
+        1,
+        2
+      ],
+      "comm_costs": {
+        "7": 0
+      },
+      "urv": 912.0,
+      "out_degree": 1
+    },
+    {
+      "id": 5,
+      "execution_times": {
+        "0": 32,
+        "1": 32,
+        "2": 32
+      },
+      "energy_costs": {
+        "0": 32,
+        "1": 32,
+        "2": 32
+      },
+      "successors": [
+        7
+      ],
+      "predecessors": [
+        2
+      ],
+      "comm_costs": {
+        "7": 0
+      },
+      "urv": 928.0,
+      "out_degree": 1
+    },
+    {
+      "id": 6,
+      "execution_times": {
+        "0": 64,
+        "1": 64,
+        "2": 64
+      },
+      "energy_costs": {
+        "0": 64,
+        "1": 64,
+        "2": 64
+      },
+      "successors": [
+        8
+      ],
+      "predecessors": [
+        3
+      ],
+      "comm_costs": {
+        "8": 0
+      },
+      "urv": 832.0,
+      "out_degree": 1
+    },
+    {
+      "id": 7,
+      "execution_times": {
+        "0": 128,
+        "1": 128,
+        "2": 128
+      },
+      "energy_costs": {
+        "0": 128,
+        "1": 128,
+        "2": 128
+      },
+      "successors": [
+        8,
+        9
+      ],
+      "predecessors": [
+        4,
+        5
+      ],
+      "comm_costs": {
+        "8": 0,
+        "9": 0
+      },
+      "urv": 896.0,
+      "out_degree": 2
+    },
+    {
+      "id": 8,
+      "execution_times": {
+        "0": 256,
+        "1": 256,
+        "2": 256
+      },
+      "energy_costs": {
+        "0": 256,
+        "1": 256,
+        "2": 256
+      },
+      "successors": [
+        9
+      ],
+      "predecessors": [
+        6,
+        7
+      ],
+      "comm_costs": {
+        "9": 0
+      },
+      "urv": 768.0,
+      "out_degree": 1
+    },
+    {
+      "id": 9,
+      "execution_times": {
+        "0": 512,
+        "1": 512,
+        "2": 512
+      },
+      "energy_costs": {
+        "0": 512,
+        "1": 512,
+        "2": 512
+      },
+      "successors": [],
+      "predecessors": [
+        7,
+        8
+      ],
+      "comm_costs": {},
+      "urv": 512.0,
+      "out_degree": 0
+    }
+  ]
+}

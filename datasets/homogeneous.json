@@ -1,0 +1,116 @@
+{
+  "name": "Homogeneous",
+  "description": "DAG lin\u00e9aire avec 5 t\u00e2ches de dur\u00e9es identiques (10 unit\u00e9s)",
+  "num_tasks": 5,
+  "num_processors": 2,
+  "processors": [
+    0,
+    1
+  ],
+  "tasks": [
+    {
+      "id": 0,
+      "execution_times": {
+        "0": 10,
+        "1": 10
+      },
+      "energy_costs": {
+        "0": 5,
+        "1": 5
+      },
+      "successors": [
+        1
+      ],
+      "predecessors": [],
+      "comm_costs": {
+        "1": 0
+      },
+      "urv": 50.0,
+      "out_degree": 1
+    },
+    {
+      "id": 1,
+      "execution_times": {
+        "0": 10,
+        "1": 10
+      },
+      "energy_costs": {
+        "0": 5,
+        "1": 5
+      },
+      "successors": [
+        2
+      ],
+      "predecessors": [
+        0
+      ],
+      "comm_costs": {
+        "2": 0
+      },
+      "urv": 40.0,
+      "out_degree": 1
+    },
+    {
+      "id": 2,
+      "execution_times": {
+        "0": 10,
+        "1": 10
+      },
+      "energy_costs": {
+        "0": 5,
+        "1": 5
+      },
+      "successors": [
+        3
+      ],
+      "predecessors": [
+        1
+      ],
+      "comm_costs": {
+        "3": 0
+      },
+      "urv": 30.0,
+      "out_degree": 1
+    },
+    {
+      "id": 3,
+      "execution_times": {
+        "0": 10,
+        "1": 10
+      },
+      "energy_costs": {
+        "0": 5,
+        "1": 5
+      },
+      "successors": [
+        4
+      ],
+      "predecessors": [
+        2
+      ],
+      "comm_costs": {
+        "4": 0
+      },
+      "urv": 20.0,
+      "out_degree": 1
+    },
+    {
+      "id": 4,
+      "execution_times": {
+        "0": 10,
+        "1": 10
+      },
+      "energy_costs": {
+        "0": 5,
+        "1": 5
+      },
+      "successors": [],
+      "predecessors": [
+        3
+      ],
+      "comm_costs": {},
+      "urv": 10.0,
+      "out_degree": 0
+    }
+  ]
+}

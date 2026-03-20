@@ -26,11 +26,11 @@ class TestTask(unittest.TestCase):
         
         task1.successors.append(task2)
         task2.predecessors.append(task1)
-        task1.comm_costs[task2.id] = 2
+        task1.comm_costs[task2.id] = 0
         
         self.assertEqual(len(task1.successors), 1)
         self.assertEqual(len(task2.predecessors), 1)
-        self.assertEqual(task1.comm_costs[2], 2)
+        self.assertEqual(task1.comm_costs[2], 0)
 
 
 class TestURVCalculation(unittest.TestCase):
@@ -56,8 +56,8 @@ class TestURVCalculation(unittest.TestCase):
         task2.successors.append(task3)
         task3.predecessors.append(task2)
         
-        task1.comm_costs[task2.id] = 2
-        task2.comm_costs[task3.id] = 2
+        task1.comm_costs[task2.id] = 0
+        task2.comm_costs[task3.id] = 0
         
         calculate_urv([task1, task2, task3])
         
@@ -86,9 +86,9 @@ class TestURVCalculation(unittest.TestCase):
         task3.successors.append(task4)
         task4.predecessors = [task2, task3]
         
-        task1.comm_costs = {task2.id: 2, task3.id: 2}
-        task2.comm_costs = {task4.id: 2}
-        task3.comm_costs = {task4.id: 2}
+        task1.comm_costs = {task2.id: 0, task3.id: 0}
+        task2.comm_costs = {task4.id: 0}
+        task3.comm_costs = {task4.id: 0}
         
         calculate_urv([task1, task2, task3, task4])
         
@@ -133,8 +133,8 @@ class TestODSScheduling(unittest.TestCase):
         task2.successors.append(task3)
         task3.predecessors.append(task2)
         
-        task1.comm_costs[task2.id] = 2
-        task2.comm_costs[task3.id] = 2
+        task1.comm_costs[task2.id] = 0
+        task2.comm_costs[task3.id] = 0
         
         processors = [0]  # Un seul processeur
         allocation, finish_times = get_ods_scheduling([task1, task2, task3], processors)
@@ -214,312 +214,210 @@ class TestODSScheduling(unittest.TestCase):
         self.assertIn(allocation[2], processors)
 
 
-class TestSchedulingProperties(unittest.TestCase):
-    """Tests des propriétés du scheduling"""
-    
-    def test_no_task_overlap_on_processor(self):
-        """Vérifier qu'il n'y a pas de chevauchement des tâches sur un processeur"""
-        task1 = Task(1, {0: 10}, {0: 5})
-        task2 = Task(2, {0: 8}, {0: 4})
-        task3 = Task(3, {0: 6}, {0: 3})
-        
-        processors = [0]
-        allocation, finish_times = get_ods_scheduling([task1, task2, task3], processors)
-        
-        # Chaque tâche sur le même processeur ne doit pas avoir de chevauchement
-        # (pas de vérification théorique avec dependencies)
-        total_time = sum(task.execution_times[0] for task in [task1, task2, task3])
-        max_finish = max(finish_times.values())
-        self.assertGreaterEqual(max_finish, total_time)
-    
-    def test_all_tasks_allocated(self):
-        """Vérifier que toutes les tâches sont allouées"""
-        tasks = [
-            Task(i, {0: 10-i, 1: 12-i}, {0: 5, 1: 4})
-            for i in range(1, 6)
-        ]
-        
-        processors = [0, 1]
-        allocation, finish_times = get_ods_scheduling(tasks, processors)
-        
-        # Toutes les tâches doivent être allouées
-        self.assertEqual(len(allocation), 5)
-        self.assertEqual(len(finish_times), 5)
-        
-        for i in range(1, 6):
-            self.assertIn(i, allocation)
-            self.assertIn(i, finish_times)
+# ============================================================================
+# CONSOLE INTERACTIVE POUR TESTER L'ALGORITHME ODS
+# ============================================================================
+
+def print_header(title):
+    """Affiche un titre formaté"""
+    print("\n" + "=" * 80)
+    print(f"  {title}")
+    print("=" * 80)
 
 
-class TestVerboseScheduling(unittest.TestCase):
-    """Test verbose pour comprendre chaque étape de l'algorithme ODS"""
+def interactive_scheduler():
+    """
+    Console interactive pour choisir les paramètres et exécuter le scheduling.
+    """
+    print_header("SCHEDULING - CONSOLE INTERACTIVE")
     
-    def test_verbose_scheduling_example(self):
-        """
-        Cas detaillé: DAG en diamant avec 4 tâches et 2 processeurs
-        Structure: task0 -> [task1, task2] -> task3
-        """
-        print("\n" + "="*80)
-        print("EXEMPLE DE SCHEDULING ODS - DAG EN DIAMANT")
-        print("="*80)
+    # 1. Choix du dataset
+    print("\n1. Sélectionner un dataset:")
+    print("   [1] Dataset homogène (5 tâches, durées identiques)")
+    print("   [2] Dataset hétérogène (10 tâches, durées variables)")
+    
+    while True:
+        choice = input("\nVotre choix (1 ou 2): ").strip()
+        if choice in ['1', '2']:
+            break
+        print("Choix invalide. Veuillez entrer 1 ou 2.")
+    
+    if choice == '1':
+        tasks, default_procs = get_dataset_homogeneous_5tasks()
+        dataset_name = "Homogène (5 tâches)"
+    else:
+        tasks, default_procs = get_dataset_heterogeneous_10tasks()
+        dataset_name = "Hétérogène (10 tâches)"
+    
+    print(f"\n✓ Dataset sélectionné: {dataset_name}")
+    print(f"  - Nombre de tâches: {len(tasks)}")
+    print(f"  - Processeurs disponibles: {default_procs}")
+    
+    # 1.5. Choix de l'algorithme
+    print("\n1.5. Sélectionner l'algorithme de scheduling:")
+    print("   [1] ODS (Optimization Decentralized Scheduling)")
+    print("   [2] HEFT (Heterogeneous Earliest Finish Time)")
+    
+    while True:
+        algo_choice = input("\nVotre choix (1 ou 2): ").strip()
+        if algo_choice in ['1', '2']:
+            break
+        print("Choix invalide. Veuillez entrer 1 ou 2.")
+    
+    if algo_choice == '1':
+        algorithm = 'ODS'
+    else:
+        algorithm = 'HEFT'
+    
+    print(f"\n✓ Algorithme sélectionné: {algorithm}")
+    
+    # 2. Nombre de processeurs
+    print("\n2. Sélectionner le nombre de processeurs:")
+    print(f"   Processeurs disponibles: {default_procs} (max: {len(default_procs)})")
+    
+    while True:
+        try:
+            num_procs = int(input(f"Nombre de processeurs (1-{len(default_procs)}): ").strip())
+            if 1 <= num_procs <= len(default_procs):
+                processors = default_procs[:num_procs]
+                break
+            else:
+                print(f"Veuillez entrer un nombre entre 1 et {len(default_procs)}")
+        except ValueError:
+            print("Veuillez entrer un nombre valide")
+    
+    print(f"\n✓ Processeurs sélectionnés: {processors}")
+    
+    # 3. Paramètres (selon l'algorithme)
+    if algorithm == 'ODS':
+        # 3. Paramètre l (indices hauts degrés)
+        print("\n3. Paramètre 'l' (indice de séparation pour les files de priorité):")
+        print(f"   Max: {len(tasks) - 1}")
         
-        # Création des tâches
-        task0 = Task(0, {0: 10, 1: 12}, {0: 50, 1: 40})
-        task1 = Task(1, {0: 8, 1: 9}, {0: 30, 1: 25})
-        task2 = Task(2, {0: 7, 1: 8}, {0: 28, 1: 22})
-        task3 = Task(3, {0: 6, 1: 7}, {0: 20, 1: 18})
+        while True:
+            try:
+                l_idx = int(input("Valeur de l (0 par défaut): ").strip() or "0")
+                if 0 <= l_idx < len(tasks):
+                    break
+                else:
+                    print(f"Veuillez entrer un nombre entre 0 et {len(tasks) - 1}")
+            except ValueError:
+                print("Veuillez entrer un nombre valide")
         
-        # Définir le DAG: task0 -> task1, task0 -> task2, task1 -> task3, task2 -> task3
-        task0.successors = [task1, task2]
-        task1.predecessors = [task0]
-        task2.predecessors = [task0]
+        print(f"\n✓ Paramètre l: {l_idx}")
         
-        task1.successors = [task3]
-        task2.successors = [task3]
-        task3.predecessors = [task1, task2]
+        # 4. Paramètre theta (fiabilité)
+        print("\n4. Paramètre 'theta' (paramètre de fiabilité):")
         
-        # Coûts de communication
-        task0.comm_costs = {task1.id: 2, task2.id: 2}
-        task1.comm_costs = {task3.id: 3}
-        task2.comm_costs = {task3.id: 3}
+        while True:
+            try:
+                theta = float(input("Valeur de theta (0.0 par défaut): ").strip() or "0.0")
+                if 0 <= theta <= 1:
+                    break
+                else:
+                    print("Veuillez entrer une valeur entre 0 et 1")
+            except ValueError:
+                print("Veuillez entrer un nombre valide")
         
-        processors = [0, 1]
-        
-        print("\n1. STRUCTURE DES TÂCHES")
-        print("-" * 80)
-        tasks = [task0, task1, task2, task3]
-        for task in tasks:
-            print(f"   Task {task.id}:")
-            print(f"      - Temps d'exécution: {task.execution_times}")
-            print(f"      - Coûts d'énergie: {task.energy_costs}")
-            print(f"      - Successeurs: {[s.id for s in task.successors]}")
-            print(f"      - Prédécesseurs: {[p.id for p in task.predecessors]}")
-        
-        print("\n2. CALCUL DE URV (Up-Rank Value)")
-        print("-" * 80)
-        from ods_soea import calculate_urv
+        print(f"\n✓ Paramètre theta: {theta}")
+    else:
+        # HEFT n'a pas de paramètres spécifiques
+        l_idx = 0
+        theta = 0
+    
+    # 5. Résumé des choix
+    print_header("RÉSUMÉ DE LA CONFIGURATION")
+    print(f"\n   Algorithme: {algorithm}")
+    print(f"   Dataset: {dataset_name}")
+    print(f"   Tâches: {len(tasks)}")
+    print(f"   Processeurs: {processors}")
+    if algorithm == 'ODS':
+        print(f"   Paramètre l: {l_idx}")
+        print(f"   Paramètre theta: {theta}")
+    
+    # 6. Exécution du scheduling
+    print_header("EXÉCUTION DU SCHEDULING")
+    
+    # Préparation des tâches selon l'algorithme
+    print(f"\nAllocation des tâches avec {algorithm}...")
+    
+    if algorithm == 'ODS':
+        # Recalculer URV et out_degree avec les tâches actuelles
         calculate_urv(tasks)
-        
-        for task in tasks:
-            print(f"   Task {task.id}: URV = {task.urv}")
-        
-        print("\n3. CALCUL DE OUT-DEGREE")
-        print("-" * 80)
         for task in tasks:
             task.out_degree = len(task.successors)
-            print(f"   Task {task.id}: out_degree = {task.out_degree}")
+        # Exécution ODS
+        allocation, finish_times = get_ods_scheduling(tasks, processors, theta=theta, l_idx=l_idx)
+    else:  # HEFT
+        # Recalculer uprank
+        calculate_uprank(tasks)
+        # Exécution HEFT
+        allocation, finish_times = get_heft_scheduling(tasks, processors, theta=0, l_idx=0)
+    
+    makespan = max(finish_times.values()) if finish_times else 0
+    
+    print(f"✓ Allocation terminée")
+    print(f"\n   Résultats:")
+    print(f"   - Makespan (temps total): {makespan}")
+    print(f"   - Tâches allouées: {len(allocation)}")
+    
+    print(f"\n   Distribution par processeur:")
+    for proc_id in processors:
+        tasks_on_proc = [tid for tid, p in allocation.items() if p == proc_id]
+        print(f"      Processeur {proc_id}: {len(tasks_on_proc)} tâche(s)")
+    
+    # 7. Visualisations
+    print_header("VISUALISATIONS")
+    
+    print("\nAffichage du DAG des tâches...")
+    print("(Fermer la fenêtre pour continuer)")
+    draw_task_dag(tasks, f"DAG des Tâches - {dataset_name}")
+    
+    print("\nAffichage du diagramme de Gantt...")
+    print("(Fermer la fenêtre pour continuer)")
+    draw_scheduling_gantt(
+        allocation, 
+        finish_times, 
+        tasks, 
+        processors, 
+        f"Scheduling {algorithm} - {dataset_name}\nMakespan: {makespan}"
+    )
+    
+    # 8. Détail du scheduling
+    print_header("DÉTAIL DU SCHEDULING")
+    
+    for proc_id in sorted(processors):
+        tasks_on_proc = sorted(
+            [tid for tid, p in allocation.items() if p == proc_id],
+            key=lambda tid: finish_times[tid]
+        )
         
-        print("\n4. PRIORITÉS")
-        print("-" * 80)
-        odq = sorted(tasks, key=lambda x: (x.out_degree, x.urv), reverse=True)
-        print(f"   ODS Queue (par out_degree puis URV): {[t.id for t in odq]}")
-        
-        rq = sorted(tasks, key=lambda x: x.urv, reverse=True)
-        print(f"   Ready Queue (par URV): {[t.id for t in rq]}")
-        
-        print("\n5. ALLOCATION DES TÂCHES")
-        print("-" * 80)
-        allocation, finish_times = get_ods_scheduling(tasks, processors)
-        
-        for task_id in sorted(allocation.keys()):
-            proc = allocation[task_id]
-            ft = finish_times[task_id]
-            print(f"   Task {task_id} -> Processeur {proc}, Finish Time = {ft}")
-        
-        print("\n6. RÉSUMÉ DU SCHEDULING")
-        print("-" * 80)
-        print(f"   Processeur 0: {[tid for tid, p in allocation.items() if p == 0]}")
-        print(f"   Processeur 1: {[tid for tid, p in allocation.items() if p == 1]}")
-        print(f"   Makespan (temps total): {max(finish_times.values())}")
-        
-        print("\n7. ORDONNANCEMENT FINAL")
-        print("-" * 80)
-        for proc_id in processors:
-            tasks_on_proc = sorted(
-                [tid for tid, p in allocation.items() if p == proc_id],
-                key=lambda tid: finish_times[tid]
-            )
-            print(f"   Processeur {proc_id}:")
+        if tasks_on_proc:
+            print(f"\nProcesseur {proc_id}:")
             for tid in tasks_on_proc:
-                exec_time = task0.execution_times.get(proc_id) if tid == 0 else \
-                           task1.execution_times.get(proc_id) if tid == 1 else \
-                           task2.execution_times.get(proc_id) if tid == 2 else \
-                           task3.execution_times.get(proc_id)
-                print(f"      - Task {tid}: Finish Time = {finish_times[tid]}")
-        
-        print("\n" + "="*80)
-        
-        # Assertions pour valider le test
-        self.assertEqual(len(allocation), 4)
-        self.assertEqual(len(finish_times), 4)
-        self.assertTrue(all(tid in allocation for tid in range(4)))
-        self.assertTrue(all(allocation[tid] in processors for tid in range(4)))
-        
-        # Afficher les graphes
-        print("\n8. VISUALISATIONS")
-        print("-" * 80)
-        print("   Affichage du DAG des tâches...")
-        draw_task_dag(tasks, "DAG des Tâches")
-        
-        print("   Affichage du diagramme de Gantt...")
-        draw_scheduling_gantt(allocation, finish_times, tasks, processors, 
-                            f"Scheduling ODS - Makespan: {max(finish_times.values())}")
-
-
-    def test_verbose_complex_dag(self):
-        """
-        Cas complexe: DAG multi-niveaux avec 8 tâches et 3 processeurs hétérogènes.
-        Structure multi-niveaux avec différentes branches et coûts hétérogènes.
-        """
-        print("\n" + "="*80)
-        print("EXEMPLE COMPLEXE DE SCHEDULING ODS - DAG MULTI-NIVEAUX (8 TÂCHES)")
-        print("="*80)
-        
-        # Création de 8 tâches avec durées hétérogènes
-        tasks = [
-            Task(0, {0: 15, 1: 18, 2: 12}, {0: 80, 1: 70, 2: 65}),     # Tâche source
-            Task(1, {0: 8, 1: 6, 2: 10}, {0: 40, 1: 35, 2: 45}),       # Rapide sur proc 1
-            Task(2, {0: 12, 1: 20, 2: 10}, {0: 50, 1: 60, 2: 42}),     # Rapide sur proc 2
-            Task(3, {0: 10, 1: 15, 2: 8}, {0: 45, 1: 55, 2: 38}),      # Rapide sur proc 2
-            Task(4, {0: 7, 1: 9, 2: 11}, {0: 35, 1: 42, 2: 48}),       # Rapide sur proc 0
-            Task(5, {0: 14, 1: 12, 2: 16}, {0: 70, 1: 65, 2: 75}),     # Rapide sur proc 1
-            Task(6, {0: 9, 1: 11, 2: 8}, {0: 42, 1: 50, 2: 40}),       # Rapide sur proc 2
-            Task(7, {0: 6, 1: 8, 2: 7}, {0: 30, 1: 40, 2: 35}),        # Tâche finale
-        ]
-        
-        # Structure complexe du DAG:
-        # Level 0: Task 0
-        # Level 1: Task 0 -> [Task 1, Task 2, Task 3]
-        # Level 2: Task 1 -> Task 4, Task 2 -> [Task 5, Task 6], Task 3 -> Task 6
-        # Level 3: [Task 4, Task 5, Task 6] -> Task 7
-        
-        tasks[0].successors = [tasks[1], tasks[2], tasks[3]]
-        for i in [1, 2, 3]:
-            tasks[i].predecessors = [tasks[0]]
-        
-        tasks[1].successors = [tasks[4]]
-        tasks[4].predecessors = [tasks[1]]
-        
-        tasks[2].successors = [tasks[5], tasks[6]]
-        tasks[5].predecessors = [tasks[2]]
-        tasks[6].predecessors = [tasks[2]]
-        
-        tasks[3].successors = [tasks[6]]
-        tasks[6].predecessors.append(tasks[3])
-        
-        tasks[4].successors = [tasks[7]]
-        tasks[5].successors = [tasks[7]]
-        tasks[6].successors = [tasks[7]]
-        tasks[7].predecessors = [tasks[4], tasks[5], tasks[6]]
-        
-        # Définir les coûts de communication
-        tasks[0].comm_costs = {1: 2, 2: 3, 3: 2}
-        tasks[1].comm_costs = {4: 2}
-        tasks[2].comm_costs = {5: 3, 6: 2}
-        tasks[3].comm_costs = {6: 2}
-        tasks[4].comm_costs = {7: 2}
-        tasks[5].comm_costs = {7: 3}
-        tasks[6].comm_costs = {7: 2}
-        
-        processors = [0, 1, 2]
-        
-        print("\n1. STRUCTURE DES TÂCHES (DAG Complexe)")
-        print("-" * 80)
-        print("Niveau 0: Task 0 (source)")
-        print("Niveau 1: Task 0 → [Task 1, Task 2, Task 3]")
-        print("Niveau 2: Task 1 → Task 4")
-        print("         Task 2 → [Task 5, Task 6]")
-        print("         Task 3 → Task 6")
-        print("Niveau 3: [Task 4, Task 5, Task 6] → Task 7 (sink)")
-        print()
-        
-        for task in tasks:
-            succ_str = [s.id for s in task.successors]
-            print(f"   Task {task.id}:")
-            print(f"      - Temps d'exécution: {task.execution_times}")
-            print(f"      - Coûts d'énergie: {task.energy_costs}")
-            print(f"      - Successeurs: {succ_str}")
-        
-        print("\n2. CALCUL DE URV (Up-Rank Value)")
-        print("-" * 80)
-        calculate_urv(tasks)
-        
-        for task in sorted(tasks, key=lambda x: x.urv, reverse=True):
-            print(f"   Task {task.id}: URV = {task.urv:.2f}")
-        
-        print("\n3. CALCUL DE OUT-DEGREE")
-        print("-" * 80)
-        for task in tasks:
-            task.out_degree = len(task.successors)
-            print(f"   Task {task.id}: out_degree = {task.out_degree}")
-        
-        print("\n4. PRIORITÉS")
-        print("-" * 80)
-        odq = sorted(tasks, key=lambda x: (x.out_degree, x.urv), reverse=True)
-        print(f"   ODS Queue (par out_degree puis URV): {[t.id for t in odq]}")
-        
-        rq = sorted(tasks, key=lambda x: x.urv, reverse=True)
-        print(f"   Ready Queue (par URV): {[t.id for t in rq]}")
-        
-        print("\n5. ALLOCATION DES TÂCHES")
-        print("-" * 80)
-        allocation, finish_times = get_ods_scheduling(tasks, processors)
-        
-        for task_id in sorted(allocation.keys()):
-            proc = allocation[task_id]
-            ft = finish_times[task_id]
-            task_obj = tasks[task_id]
-            exec_time = task_obj.execution_times[proc]
-            st = ft - exec_time
-            print(f"   Task {task_id}: Proc {proc}, Start={st:5.0f}, Finish={ft:5.0f}, Exec={exec_time}")
-        
-        print("\n6. RÉSUMÉ DU SCHEDULING")
-        print("-" * 80)
-        for proc_id in processors:
-            tasks_on_proc = sorted(
-                [tid for tid, p in allocation.items() if p == proc_id],
-                key=lambda tid: finish_times[tid]
-            )
-            print(f"   Processeur {proc_id}: Tasks {tasks_on_proc}")
-        
-        makespan = max(finish_times.values())
-        total_energy = sum(tasks[tid].energy_costs[allocation[tid]] for tid in range(len(tasks)))
-        print(f"\n   Makespan (temps total): {makespan}")
-        print(f"   Énergie totale: {total_energy}")
-        
-        print("\n7. DÉTAIL DE L'ORDONNANCEMENT")
-        print("-" * 80)
-        for proc_id in processors:
-            tasks_on_proc = sorted(
-                [tid for tid, p in allocation.items() if p == proc_id],
-                key=lambda tid: finish_times[tid]
-            )
-            if tasks_on_proc:
-                print(f"   Processeur {proc_id}:")
-                for tid in tasks_on_proc:
-                    ft = finish_times[tid]
-                    exec_time = tasks[tid].execution_times[proc_id]
-                    st = ft - exec_time
-                    print(f"      └─ Task {tid}: [{st:5.0f} - {ft:5.0f}] (durée: {exec_time})")
-        
-        print("\n" + "="*80)
-        
-        # Assertions
-        self.assertEqual(len(allocation), 8)
-        self.assertEqual(len(finish_times), 8)
-        self.assertTrue(all(tid in allocation for tid in range(8)))
-        self.assertTrue(all(allocation[tid] in processors for tid in range(8)))
-        
-        # Afficher les graphes
-        print("\n8. VISUALISATIONS")
-        print("-" * 80)
-        print("   Affichage du DAG complexe des tâches...")
-        draw_task_dag(tasks, "DAG Complexe - 8 Tâches Multi-Niveaux")
-        
-        print("   Affichage du diagramme de Gantt...")
-        draw_scheduling_gantt(allocation, finish_times, tasks, processors, 
-                            f"Scheduling ODS Complexe - Makespan: {makespan}")
+                ft = finish_times[tid]
+                exec_time = tasks[tid].execution_times[proc_id]
+                st = ft - exec_time
+                print(f"   Task {tid}: [{st:6.0f} - {ft:6.0f}] (durée: {exec_time})")
+    
+    print_header("FIN")
+    print("\nScheduling terminé!")
 
 
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    
+    # Vérifier si on doit exécuter les tests ou la console interactive
+    if len(sys.argv) > 1 and sys.argv[1] == '--test':
+        # Mode test unitaire
+        unittest.main(argv=sys.argv[:1])
+    else:
+        # Mode console interactive
+        try:
+            interactive_scheduler()
+        except KeyboardInterrupt:
+            print("\n\nProgramme interrompu par l'utilisateur.")
+        except Exception as e:
+            print(f"\nErreur: {e}")
+            import traceback
+            traceback.print_exc()

@@ -7,6 +7,7 @@ class Task:
         self.predecessors = []                              # List of Task objects
         self.comm_costs = {}                                # {succ_id: communication_cost}
         self.urv = 0
+        self.uprank = 0         # Utilisé par HEFT
         self.out_degree = 0
 
     def add_predecessor(self, predecessor: "Task"):
