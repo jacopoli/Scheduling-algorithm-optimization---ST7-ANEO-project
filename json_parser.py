@@ -1,5 +1,6 @@
 import json
-from ods_soea import Task
+from ods import Task
+from soea import Processor
 
 def load_tasks_from_json(file_path, processors, comm_cost=1):
     """
@@ -32,3 +33,20 @@ def save_results_to_json(allocation, finish_times, output_path="results.json"):
 
     with open(output_path, "w") as f:
         json.dump(results, f, indent=4)
+
+def load_processors_from_json(filepath):
+    with open(filepath, "r") as f:
+        data = json.load(f)
+    processors = []
+    for p in data["processors"]:
+        processors.append(Processor(
+            id=p["id"],
+            lambda_f=p["lambda_f"],
+            d=p["d"],
+            f_min=p["f_min"],
+            f_max=p["f_max"],
+            alpha=p["alpha"],
+            c=p["c"],
+            p_static=p["p_static"]
+        ))
+    return processors

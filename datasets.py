@@ -8,7 +8,7 @@ Les données JSON sont stockées dans le dossier 'datasets/' avec deux fichiers:
 
 import json
 import os
-from ods_soea import Task, calculate_urv
+from ods import Task, calculate_urv
 
 
 def task_to_dict(task):

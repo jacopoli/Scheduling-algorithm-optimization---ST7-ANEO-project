@@ -1,5 +1,7 @@
 import unittest
-from ods_soea import Task, calculate_urv, get_ods_scheduling
+from datasets import get_dataset_heterogeneous_10tasks, get_dataset_homogeneous_5tasks
+from heft import calculate_uprank, get_heft_scheduling
+from ods import Task, calculate_urv, get_ods_scheduling
 from visualizer import draw_scheduling_gantt, draw_task_dag
 
 class TestTask(unittest.TestCase):
