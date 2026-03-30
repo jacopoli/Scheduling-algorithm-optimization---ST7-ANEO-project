@@ -61,9 +61,7 @@ def save_results_to_json(tasks, allocation, finish_times, frequencies, proc_map,
     with open(output_path, "w") as f:
         json.dump({
             "makespan": round(max(finish_times.values()), 4),
-            "energy_at_fmax": round(energy_at_fmax, 4),
-            "energy_soea": round(energy_soea, 4),
-            "energy_savings_pct": round(savings_pct, 2),
+            "energy_savings_percentage": round(savings_pct, 2),
             "tasks": results
         }, f, indent=4)
 
