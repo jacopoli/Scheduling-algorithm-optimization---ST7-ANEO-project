@@ -1,3 +1,5 @@
+import math
+
 class Processor:
     def __init__(self, id, lambda_f, d, f_min, f_max, alpha, c, p_static):
         self.id = id
@@ -15,7 +17,6 @@ class Processor:
 
     def reliability(self, f, exec_time_at_fmax):
         """ Reliability of a task at frequency f (Equation 7) """
-        import math
         t = exec_time_at_fmax / f
         return math.exp(-self.lambda_at(f) * t)
 
@@ -36,13 +37,11 @@ def soea(tasks, allocation, proc_map, r_req, epsilon=1e-5):
     Given the allocation of tasks to processors, finds the optimal frequency
     for each task that minimizes energy while satisfying r_req.
     """
-    import math
 
     task_map = {t.id: t for t in tasks}
 
-    def o_at_f(f, proc, task_id):
+    def o_at_f(f, proc):
         """ Lagrange multiplier o as a function of f (Equation 23) """
-        T = task_map[task_id].execution_times[proc.id]
         lam = proc.lambda_at(f)
         numerator = proc.c * (proc.alpha - 1) * (f ** (proc.alpha - 1)) - proc.p_static / f
         denominator = r_req * lam * (proc.d * math.log(10) / (1 - proc.f_min) + 1 / f)
@@ -54,7 +53,7 @@ def soea(tasks, allocation, proc_map, r_req, epsilon=1e-5):
         f_ub = proc.f_max
         while (f_ub - f_lb) > epsilon:
             f_mid = (f_lb + f_ub) / 2
-            if o_at_f(f_mid, proc, task_id) < o:
+            if o_at_f(f_mid, proc) < o:
                 f_lb = f_mid
             else:
                 f_ub = f_mid
@@ -70,9 +69,9 @@ def soea(tasks, allocation, proc_map, r_req, epsilon=1e-5):
         return r
 
     # Search bounds for o (Equation 27)
-    o_lb = min(o_at_f(proc.f_min, proc, t.id)
+    o_lb = min(o_at_f(proc.f_min, proc)
                for t in tasks for proc in [proc_map[allocation[t.id]]])
-    o_ub = max(o_at_f(proc.f_max, proc, t.id)
+    o_ub = max(o_at_f(proc.f_max, proc)
                for t in tasks for proc in [proc_map[allocation[t.id]]])
 
     # Outer binary search over o

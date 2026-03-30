@@ -37,9 +37,9 @@ def save_results_to_json(allocation, finish_times, output_path="results.json"):
 def load_processors_from_json(filepath):
     with open(filepath, "r") as f:
         data = json.load(f)
-    processors = []
+    proc_map = {}
     for p in data["processors"]:
-        processors.append(Processor(
+        proc = Processor(
             id=p["id"],
             lambda_f=p["lambda_f"],
             d=p["d"],
@@ -48,5 +48,6 @@ def load_processors_from_json(filepath):
             alpha=p["alpha"],
             c=p["c"],
             p_static=p["p_static"]
-        ))
-    return processors
+        )
+        proc_map[proc.id] = proc
+    return proc_map

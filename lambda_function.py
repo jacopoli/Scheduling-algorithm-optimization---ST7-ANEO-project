@@ -1,6 +1,6 @@
 import json
 import boto3
-from json_parser import load_tasks_from_json, save_results_to_json
+from utils.json_parser import load_tasks_from_json, save_results_to_json
 from ods import get_ods_scheduling
 
 s3 = boto3.client('s3')

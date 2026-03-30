@@ -1,8 +1,8 @@
 import json
 import sys
-from json_parser import load_tasks_from_json
+from utils.json_parser import load_tasks_from_json
 from test_ods_soea import draw_scheduling_gantt
-from visualizer import draw_task_dag
+from utils.visualizer import draw_task_dag
 
 def main():
     if len(sys.argv) < 4:
