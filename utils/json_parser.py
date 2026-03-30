@@ -25,14 +25,47 @@ def load_tasks_from_json(file_path, processors, comm_cost=1):
 
     return list(tasks.values())
 
-def save_results_to_json(allocation, finish_times, output_path="results.json"):
-    results = {
-        "allocation": allocation,
-        "finish_times": finish_times
-    }
+# def save_results_to_json(allocation, finish_times, output_path="results.json"):
+#     results = {
+#         "allocation": allocation,
+#         "finish_times": finish_times
+#     }
+
+#     with open(output_path, "w") as f:
+#         json.dump(results, f, indent=4)
+
+def save_results_to_json(tasks, allocation, finish_times, frequencies, proc_map, output_path="results.json"):
+    results = []
+    for task_id, proc_id in allocation.items():
+        f = frequencies[task_id]
+        ft = finish_times[task_id]
+        results.append({
+            "task_id": task_id,
+            "processor": proc_id,
+            "finish_time": round(ft, 4),
+            "frequency": round(f, 6),
+        })
+
+    # sum of every tasks energy consumption at max frequency (f=1)
+    energy_at_fmax = sum(
+        proc_map[allocation[task.id]].energy(1.0, task.execution_times[allocation[task.id]])
+        for task in tasks
+    )
+    energy_soea = sum(
+        proc_map[allocation[task.id]].energy(frequencies[task.id], task.execution_times[allocation[task.id]])
+        for task in tasks
+    )
+    # convert savings to percentage
+    savings_pct = (energy_at_fmax - energy_soea) / energy_at_fmax * 100
 
     with open(output_path, "w") as f:
-        json.dump(results, f, indent=4)
+        json.dump({
+            "makespan": round(max(finish_times.values()), 4),
+            "energy_at_fmax": round(energy_at_fmax, 4),
+            "energy_soea": round(energy_soea, 4),
+            "energy_savings_pct": round(savings_pct, 2),
+            "tasks": results
+        }, f, indent=4)
 
 def load_processors_from_json(filepath):
     with open(filepath, "r") as f:

@@ -14,12 +14,12 @@ def main():
 
     start = time.time()
     allocation, finish_times = get_ods_scheduling(tasks, processors, l_idx=len(tasks) - 1)
-    frequencies = soea(tasks, allocation, processors, r_req=0.95, epsilon=1e-5)
+    frequencies = soea(tasks, allocation, processors, r_req=0.6)
     end = time.time()
     print(f"Algorithm execution time: {end - start:.8f} seconds")
 
     # Dump results to JSON
-    save_results_to_json(allocation, finish_times)
+    save_results_to_json(tasks, allocation, finish_times, frequencies, processors)
 
     # Save Gantt chart
     # draw_task_dag(tasks, output_path="graph.png", task_prefix="")
