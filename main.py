@@ -10,7 +10,6 @@ import time
 def main():
     processors = load_processors_from_json("processors.json")
     tasks = load_tasks_from_json("task_graph.json", processors)
-    print(processors)
 
     start = time.time()
     allocation, finish_times = get_ods_scheduling(tasks, processors, l_idx=len(tasks) - 1)
