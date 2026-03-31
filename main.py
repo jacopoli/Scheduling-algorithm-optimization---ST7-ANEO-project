@@ -1,10 +1,6 @@
-import sys
-import json
 from soea import soea
 from utils.json_parser import load_processors_from_json, load_tasks_from_json, save_results_to_json
 from ods import get_ods_scheduling
-from test_ods_soea import draw_scheduling_gantt
-from utils.visualizer import draw_task_dag
 import time
 
 def main():
