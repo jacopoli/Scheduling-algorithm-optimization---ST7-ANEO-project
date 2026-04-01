@@ -15,10 +15,6 @@ def main():
 
     # Dump results to JSON
     save_results_to_json(tasks, allocation, finish_times, frequencies, processors)
-
-    # Save Gantt chart
-    # draw_task_dag(tasks, output_path="graph.png", task_prefix="")
-    # draw_scheduling_gantt(allocation, finish_times, tasks, processors, output_path="gantt.png", task_prefix="")
-
+    
 if __name__ == "__main__":
     main()

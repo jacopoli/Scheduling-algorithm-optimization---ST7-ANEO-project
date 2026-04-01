@@ -25,15 +25,6 @@ def load_tasks_from_json(file_path, processors, comm_cost=1):
 
     return list(tasks.values())
 
-# def save_results_to_json(allocation, finish_times, output_path="results.json"):
-#     results = {
-#         "allocation": allocation,
-#         "finish_times": finish_times
-#     }
-
-#     with open(output_path, "w") as f:
-#         json.dump(results, f, indent=4)
-
 def save_results_to_json(tasks, allocation, finish_times, frequencies, proc_map, output_path="results.json"):
     results = []
     for task_id, proc_id in allocation.items():
